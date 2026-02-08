@@ -3,259 +3,290 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>COS 101 | Total Master Exam (166 Questions)</title>
+    <title>COS 101 | Total Master Exam Simulator</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg: #0f172a;
-            --card: #1e293b;
-            --accent: #38bdf8;
-            --text: #f8fafc;
-            --success: #22c55e;
-            --error: #ef4444;
-            --secondary: #64748b;
+            --bg: #0f172a; --card: #1e293b; --accent: #38bdf8; --text: #f8fafc;
+            --success: #22c55e; --error: #ef4444; --secondary: #64748b;
         }
 
-        body { font-family: 'Inter', sans-serif; background-color: var(--bg); color: var(--text); margin: 0; display: flex; flex-direction: column; align-items: center; padding-bottom: 100px; }
-        .container { max-width: 900px; width: 95%; }
-        header { text-align: center; padding: 40px 20px; }
-        h1 { font-weight: 800; font-size: 2.5rem; margin: 0; background: linear-gradient(90deg, #38bdf8, #818cf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg); color: var(--text); margin: 0; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
+        .container { max-width: 900px; width: 92%; padding: 20px; }
         
-        .sticky-stats { position: sticky; top: 0; z-index: 1000; background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(10px); padding: 15px 0; border-bottom: 1px solid rgba(255,255,255,0.1); width: 100%; display: flex; justify-content: center; }
-        .stats-content { width: 900px; display: flex; justify-content: space-between; align-items: center; padding: 0 20px; }
-        .progress-container { flex-grow: 1; height: 8px; background: #334155; border-radius: 4px; margin: 0 20px; overflow: hidden; }
-        #progress-bar { width: 0%; height: 100%; background: var(--accent); transition: width 0.4s ease; }
+        .screen { display: none; width: 100%; text-align: center; animation: fadeIn 0.4s ease; }
+        .active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        .cat-tag { background: rgba(56, 189, 248, 0.1); color: var(--accent); padding: 4px 12px; border-radius: 20px; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; margin-bottom: 10px; display: inline-block; }
-        .quiz-card { background: var(--card); padding: 25px; border-radius: 20px; margin-bottom: 25px; border: 1px solid rgba(255,255,255,0.05); }
+        .sticky-stats { position: sticky; top: 0; z-index: 1000; background: rgba(15, 23, 42, 0.9); backdrop-filter: blur(10px); width: 100%; padding: 15px 0; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .stats-content { max-width: 900px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; padding: 0 20px; }
+        .progress-container { flex-grow: 1; height: 10px; background: #334155; border-radius: 5px; margin: 0 20px; overflow: hidden; }
+        #progress-bar { width: 0%; height: 100%; background: var(--accent); transition: width 0.3s; }
+
+        .quiz-card { background: var(--card); padding: 25px; border-radius: 20px; margin-bottom: 25px; text-align: left; border: 1px solid rgba(255,255,255,0.05); }
+        .cat-tag { background: rgba(56, 189, 248, 0.1); color: var(--accent); padding: 4px 10px; border-radius: 8px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; margin-bottom: 10px; display: inline-block; }
         .question { font-size: 1.1rem; font-weight: 600; margin-bottom: 20px; line-height: 1.5; }
-        .options { display: grid; gap: 10px; }
-
-        .option-label { padding: 14px; background: rgba(255,255,255,0.02); border: 2px solid rgba(255,255,255,0.08); border-radius: 12px; cursor: pointer; transition: 0.2s; }
+        .options { display: grid; gap: 12px; }
+        .option-label { padding: 15px; background: rgba(255,255,255,0.03); border: 2px solid rgba(255,255,255,0.1); border-radius: 12px; cursor: pointer; transition: 0.2s; display: block; }
         input[type="radio"]:checked + .option-label { background: var(--accent); color: var(--bg); border-color: var(--accent); font-weight: 700; }
         input[type="radio"] { display: none; }
 
-        #submit-btn { width: 100%; padding: 20px; background: var(--accent); color: var(--bg); border: none; border-radius: 15px; font-size: 1.2rem; font-weight: 800; cursor: pointer; margin-top: 20px; }
-        #result-area { display: none; text-align: center; margin-top: 40px; }
-        .score-box { font-size: 4rem; font-weight: 800; color: var(--accent); }
-        .review-card { background: #111827; padding: 20px; border-radius: 15px; margin-bottom: 15px; text-align: left; border-left: 6px solid #334155; }
-        .review-card.correct { border-left-color: var(--success); }
-        .review-card.wrong { border-left-color: var(--error); }
+        button { padding: 15px 30px; border-radius: 12px; border: none; font-weight: 800; cursor: pointer; transition: 0.2s; font-size: 1rem; }
+        .btn-primary { background: var(--accent); color: var(--bg); width: 100%; margin-top: 20px; }
+        .btn-outline { background: transparent; border: 2px solid var(--accent); color: var(--accent); margin: 10px; }
+        .btn-start { font-size: 1.5rem; padding: 20px 60px; background: var(--accent); color: var(--bg); margin-top: 30px; box-shadow: 0 10px 20px rgba(56, 189, 248, 0.2); }
+
+        .score-circle { width: 180px; height: 180px; border-radius: 50%; border: 8px solid var(--accent); display: flex; flex-direction: column; justify-content: center; align-items: center; margin: 30px auto; }
+        .score-val { font-size: 3rem; font-weight: 800; }
+        .score-pct { font-size: 1.4rem; opacity: 0.8; }
+        .review-item { text-align: left; padding: 20px; border-radius: 15px; margin-bottom: 15px; border-left: 6px solid #444; background: rgba(255,255,255,0.02); }
+        .review-item.correct { border-left-color: var(--success); }
+        .review-item.wrong { border-left-color: var(--error); }
+        .explanation { font-size: 0.9rem; color: #94a3b8; margin-top: 10px; font-style: italic; background: rgba(0,0,0,0.3); padding: 12px; border-radius: 8px; border-left: 3px solid var(--accent); }
     </style>
 </head>
 <body>
 
-<div class="sticky-stats">
+<div id="exam-header" class="sticky-stats" style="display: none;">
     <div class="stats-content">
-        <div id="timer" style="font-family: monospace; font-weight: bold;">00:00</div>
+        <div id="timer" style="font-weight: 800; font-family: monospace;">00:00</div>
         <div class="progress-container"><div id="progress-bar"></div></div>
-        <div id="counter" style="font-weight: bold;">0/166</div>
+        <div id="counter" style="font-weight: 800;">0/166</div>
     </div>
 </div>
 
 <div class="container">
-    <header><h1>COS 101 TOTAL MASTER EXAM</h1></header>
-    <div id="quiz-form"></div>
-    <button id="submit-btn" onclick="grade()">FINISH EXAM</button>
-    <div id="result-area">
-        <h2>Results</h2>
-        <div class="score-box" id="final-score">0/166</div>
+    <div id="start-screen" class="screen active">
+        <h1 style="font-size: 3.5rem; margin-top: 50px; background: linear-gradient(90deg, #38bdf8, #818cf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">COS 101</h1>
+        <p style="color: var(--accent); font-weight: 800; letter-spacing: 2px;">THE ULTIMATE MASTER EXAM</p>
+        <div class="quiz-card" style="margin-top: 30px; text-align: center;">
+            <p>Complete Exam Preparation Covering All Units</p>
+            <button class="btn-start" onclick="startQuiz()">START EXAM</button>
+        </div>
+    </div>
+
+    <div id="quiz-screen" class="screen">
+        <div id="questions-container"></div>
+        <button class="btn-primary" onclick="showResults()">SUBMIT EXAM</button>
+    </div>
+
+    <div id="result-screen" class="screen">
+        <h1>Final Score</h1>
+        <div class="score-circle">
+            <div class="score-val" id="res-score">0</div>
+            <div class="score-pct" id="res-pct">0%</div>
+        </div>
+        <button class="btn-primary" onclick="showReview()">SEE REVIEW & EXPLANATIONS</button>
+        <button class="btn-outline" onclick="location.reload()">RESTART</button>
+    </div>
+
+    <div id="review-screen" class="screen">
+        <h2 style="margin-bottom: 30px;">Review Answers</h2>
         <div id="review-list"></div>
-        <button id="submit-btn" onclick="location.reload()">RESTART</button>
+        <button class="btn-primary" onclick="backToScore()">BACK TO SCORE</button>
+        <button class="btn-outline" onclick="location.reload()" style="margin-top:10px;">RESTART</button>
     </div>
 </div>
 
 <script>
 const quizData = [
-    // --- PREVIOUS SECTIONS (107 Questions summarized) ---
-    // Note: All 107 questions from previous prompts are retained here...
-    { cat: "Intro", q: "What is COS 101?", options: ["Advanced programming", "Introduction to computing sciences", "Hardware maintenance", "Data analysis"], correct: 1 },
-    { cat: "Intro", q: "Which is NOT covered in COS 101 contents?", options: ["Basic components", "Future of computing", "Advanced network security protocols", "History of computing"], correct: 2 },
-    { cat: "Intro", q: "Primary purpose of lab work?", options: ["Theorize trends", "Practical demonstrations of computer/internet usage", "Develop languages", "Economic impact"], correct: 1 },
-    { cat: "Intro", q: "Objectives: students should understand regarding computers?", options: ["Programming only", "Their history, classification, and impact", "Hardware only", "Software only"], correct: 1 },
-    { cat: "Intro", q: "Which is a learning outcome for COS 101?", options: ["Design OS", "Explain computing discipline and specializations", "Hardware repair", "AI algorithms"], correct: 1 },
-    { cat: "Definition", q: "How is a computer defined in Lesson 1?", options: ["Device that only processes", "Electronic device that accepts, processes, produces, displays, and stores data", "Machine for input only", "Tool for display without processing"], correct: 1 },
-    { cat: "Definition", q: "Four basic steps of operation?", options: ["Input, storage, display, output", "Input, processing, output, storage", "Processing, storage, display, user interaction", "Data entry, analysis, reporting, archiving"], correct: 1 },
-    { cat: "Definition", q: "Definition of 'data'?", options: ["Organized facts", "Processed info", "Collection of unorganized facts and figures", "Structured info"], correct: 2 },
-    { cat: "Definition", q: "Definition of 'information'?", options: ["Unstructured facts", "Raw input", "Organized, meaningful, and processed data", "Instructions"], correct: 2 },
-    { cat: "Definition", q: "Three major methods of data processing?", options: ["Digital/Analogue/Hybrid", "Manual, mechanical, computer", "Primary/Secondary/Tertiary", "Input/Process/Output"], correct: 1 },
-    { cat: "Definition", q: "Method described as cumbersome, tiresome, and frustrating?", options: ["Mechanical", "Computer", "Manual method", "Digital"], correct: 2 },
-    { cat: "Definition", q: "Limitations of mechanical method?", options: ["Too accurate", "Noisy, hazardous, error-prone, and untidy", "Too much interaction", "Small volumes only"], correct: 1 },
-    { cat: "Definition", q: "Major feature of 'Computer Method'?", options: ["Operations are practically not noisy", "Inconsistent processing", "Errors difficult to correct", "Limited storage"], correct: 0 },
-    { cat: "Characteristics", q: "Which characteristic means it can perform millions of calculations in a few seconds?", options: ["Accuracy", "Storage", "Speed", "Reliability"], correct: 2 },
-    { cat: "Characteristics", q: "Computers perform jobs with 100% accuracy provided that:", options: ["Program is well-written", "The input is correct", "Hardware is new", "Power is stable"], correct: 1 },
-    { cat: "Characteristics", q: "Key characteristic regarding ability to store data?", options: ["Limited capacity", "Store large amounts of various types (images, videos, text, audio)", "Numerical data only", "Temporary and always lost"], correct: 1 },
-    { cat: "Characteristics", q: "What does 'Automation' mean?", options: ["Human interaction", "Ability to perform a task automatically once a program is stored", "Processing speed", "Physical size"], correct: 1 },
-    { cat: "Characteristics", q: "How does a computer contribute to reducing paperwork?", options: ["Printing more", "Using electronic files that can be retrieved as needed", "Manual data entry", "Physical storage"], correct: 1 },
-    { cat: "Characteristics", q: "Ability to perform tasks related to various fields (science to gaming)?", options: ["Diligence", "Reliability", "Versatility", "Speed"], correct: 2 },
-    { cat: "History", q: "How was the 'generation term' initially used?", options: ["Software features", "Varying hardware technologies", "Programming languages", "Size"], correct: 1 },
-    { cat: "History", q: "Technology for First Generation Computers?", options: ["Transistors", "ICs", "Vacuum tubes", "Microprocessors"], correct: 2 },
-    { cat: "History", q: "Drawback of First Generation Computers?", options: ["Little heat", "Generated a lot of heat and were very expensive", "Affordable", "Cool air"], correct: 1 },
-    { cat: "History", q: "What replaced vacuum tubes in Second Generation?", options: ["ICs", "VLSI", "Transistors", "Microprocessors"], correct: 2 },
-    { cat: "History", q: "Programming languages used in Second Generation?", options: ["Machine only", "Assembly language and high-level (FORTRAN, COBOL)", "C++/Java", "Python"], correct: 1 },
-    { cat: "History", q: "Advancement characterizing Third Generation?", options: ["Vacuum tubes", "Transistors", "Integrated Circuits (ICs)", "VLSI"], correct: 2 },
-    { cat: "History", q: "PC revolution associated with which generation?", options: ["2nd", "3rd", "Fourth Generation", "5th"], correct: 2 },
-    { cat: "History", q: "Technology of Fourth Generation?", options: ["ULSI", "Vacuum tubes", "VLSI circuits", "ICs"], correct: 2 },
-    { cat: "History", q: "Feature of Fifth Generation Computers?", options: ["Vacuum tubes", "Development of true artificial intelligence", "Assembly only", "Limited power"], correct: 1 },
-    { cat: "History", q: "Technology associated with Fifth Generation?", options: ["VLSI", "Transistors", "ULSI (Ultra Large-Scale Integration)", "ICs"], correct: 2 },
-    { cat: "Apps", q: "Field using computers for patient history and diagnosis?", options: ["Industry", "Education", "Medical Field", "Banking"], correct: 2 },
-    { cat: "Apps", q: "Entertainment industry EXCEPTION?", options: ["Watching movies", "Playing games", "Manual data entry for inventory", "MIDI music"], correct: 2 },
-    { cat: "Apps", q: "How are computers used in 'Industry'?", options: ["Customer service", "Manage inventory, design products, marketing", "Employee training only", "Finance only"], correct: 1 },
-    { cat: "Apps", q: "Key application in 'Education'?", options: ["Admin only", "Online classes, online examinations, e-books", "Physical grading", "Manual attendance"], correct: 1 },
-    { cat: "Apps", q: "Government sector use EXCEPTION?", options: ["Data processing", "Citizen databases", "Missile development", "Manual filing of all documents"], correct: 3 },
-    { cat: "Apps", q: "Sector using computers for ATMs and withdrawals?", options: ["Industry", "Banking", "Entertainment", "Home"], correct: 1 },
-    { cat: "Apps", q: "How do computers aid businesses?", options: ["Increase paperwork", "Making transactions easy/accurate and allowing analysis", "Limit access", "Reduce interaction"], correct: 1 },
-    { cat: "Apps", q: "Computer-based training primary use?", options: ["Travel costs", "Save money and improve performance", "Reduce tech", "Make complex"], correct: 1 },
-    { cat: "Apps", q: "Areas for dance animation and digitizing photos?", options: ["Science", "Banking", "Arts", "Government"], correct: 2 },
-    { cat: "Apps", q: "Supercomputers role in 'Science and Engineering'?", options: ["Basic math", "Stimulate dynamic processes and R&D", "Replace humans", "Admin"], correct: 1 },
-    { cat: "System", q: "Three main components of a computer system?", options: ["Software/User/Env", "Keyboard/Monitor/Printer", "CPU, Input devices, Output devices", "RAM/ROM/CPU"], correct: 2 },
-    { cat: "System", q: "CPU is often referred to as?", options: ["Memory", "Storage", "The brain of the computer", "Interface"], correct: 2 },
-    { cat: "System", q: "Two components of the CPU?", options: ["Input/Output", "Memory/Storage", "Arithmetic Logic Unit (ALU) and Control Unit", "RAM/ROM"], correct: 2 },
-    { cat: "System", q: "Where does comparison and decision-making take place?", options: ["Control Unit", "Memory Unit", "Arithmetic Logic Unit (ALU)", "Input Unit"], correct: 2 },
-    { cat: "System", q: "Primary function of Control Unit?", options: ["Calculations", "Extract instructions, maintain and direct operations", "Store data", "Display results"], correct: 1 },
-    { cat: "System", q: "Unit of computer memory?", options: ["Bit", "Byte", "Kilobyte", "Megabyte"], correct: 1 },
-    { cat: "System", q: "Example of an input device?", options: ["Monitor", "Printer", "Keyboard", "Sound system"], correct: 2 },
-    { cat: "System", q: "Characteristic of a mouse?", options: ["Printing", "Pointing device used to point data on screen", "Convert to digital", "Receive dictation"], correct: 1 },
-    { cat: "System", q: "What does a scanner do?", options: ["Hard copy", "Spray ink", "Transform printed material/photos into digital", "Sound output"], correct: 2 },
-    { cat: "System", q: "Read information printed as bars?", options: ["Barcode reader", "Voice System", "Digital Pen", "Touch screen"], correct: 0 },
-    { cat: "System", q: "Primary characteristic of a monitor?", options: ["Hard copy", "Visual Display Unit (VDU)", "Print without ribbon", "Sound output"], correct: 1 },
-    { cat: "System", q: "Purpose of a printer?", options: ["Receive data", "Calculations", "Print info on paper (hard copy)", "Store data"], correct: 2 },
-    { cat: "Printers", q: "Two main types of printers?", options: ["Char/Line", "Laser/Inkjet", "Impact and Non-Impact", "Dot/Daisy"], correct: 2 },
-    { cat: "Printers", q: "How do impact printers produce characters?", options: ["Spray ink", "Laser", "Striking characters on a ribbon", "Heating"], correct: 2 },
-    { cat: "Printers", q: "Low consumable cost and very noisy?", options: ["Non-impact", "Laser", "Inkjet", "Impact printers"], correct: 3 },
-    { cat: "Printers", q: "Two types of impact printers mentioned?", options: ["Laser/Inkjet", "Dot Matrix and Daisy Wheel", "Char/Line", "Drum/Chain"], correct: 1 },
-    { cat: "Printers", q: "Which printer prints one character at a time?", options: ["Line", "Page", "Character printer", "Drum"], correct: 2 },
-    { cat: "Printers", q: "Disadvantage of Dot Matrix?", options: ["High cost", "Slow speed and poor quality", "Heat", "Special ribbon"], correct: 1 },
-    { cat: "Printers", q: "Daisy Wheel printers used for:", options: ["Bulk reports", "High-quality word processing (few letters)", "Graphics", "Fast line"], correct: 1 },
-    { cat: "Printers", q: "What characterizes Line printers?", options: ["One char", "One line at a time", "Ink spray", "Quiet"], correct: 1 },
-    { cat: "Printers", q: "Drum printers known for:", options: ["Low speed", "Very high speed and inability to change fonts", "One char", "Ink cartridges"], correct: 1 },
-    { cat: "Printers", q: "Advantage of Chain printers?", options: ["Noisy", "Fonts easily changed and different languages", "Expensive", "Low quality"], correct: 1 },
-    { cat: "Printers", q: "Non-impact printers also called:", options: ["Character", "Line", "Page printers", "Impact"], correct: 2 },
-    { cat: "Printers", q: "Non-impact vs impact characteristic?", options: ["Noisier", "Faster and not noisy", "Lower quality", "Limited font"], correct: 1 },
-    { cat: "Printers", q: "Uses laser lights to produce dots?", options: ["Inkjet", "Dot Matrix", "Laser printer", "Daisy Wheel"], correct: 2 },
-    { cat: "Printers", q: "Disadvantage of Laser printers?", options: ["Slow", "Cannot produce multiple copies in single printing", "Noisy", "Poor quality"], correct: 1 },
-    { cat: "Printers", q: "How do Inkjet printers produce characters?", options: ["Striking ribbon", "Spraying small drops of ink", "Laser beams", "Heating"], correct: 1 },
-    { cat: "Printers", q: "Disadvantage of Inkjet compared to laser?", options: ["More expensive per page", "Lower printing quality", "Faster", "Not noisy"], correct: 0 },
-    { cat: "Memory", q: "What are the two main types of computer memory?", options: ["Volatile and Non-volatile", "Primary Memory and Secondary Memory", "RAM and ROM", "Internal and External Memory"], correct: 1 },
-    { cat: "Memory", q: "What is a characteristic of Primary Memory?", options: ["Permanent storage", "Main memory present on the motherboard", "Slower than secondary", "Non-volatile"], correct: 1 },
-    { cat: "Memory", q: "What is RAM referred to as, and what happens when power is off?", options: ["Permanent; retained", "Temporary memory; information is lost", "ROM; retained", "Secondary; retained"], correct: 1 },
-    { cat: "Memory", q: "RAM is also known as:", options: ["Permanent memory", "Programmable memory", "Read-Only Memory", "Volatile memory"], correct: 3 },
-    { cat: "Memory", q: "Which of the following is NOT a function of RAM?", options: ["Stores data until processed", "Working space for processing", "Stores permanent system instructions", "Stores processed data before output"], correct: 2 },
-    { cat: "Memory", q: "What is ROM referred to as, and what happens when power is off?", options: ["Temporary; lost", "Permanent memory; info available when off", "Volatile; lost", "RAM; lost"], correct: 1 },
-    { cat: "Memory", q: "What can be said about instructions stored in ROM?", options: ["Only read and cannot be modified", "Modified by user", "Temporary and lost", "Used for temporary data"], correct: 0 },
-    { cat: "Memory", q: "Which type of ROM allows most flexibility in erasing/reprogramming?", options: ["PROM", "EPROM", "EEPROM", "Standard ROM"], correct: 2 },
-    { cat: "Memory", q: "Accurate difference between RAM and ROM?", options: ["RAM non-volatile, ROM volatile", "RAM low speed, ROM high speed", "RAM more expensive/higher speed than ROM", "ROM temporary, RAM permanent"], correct: 2 },
-    { cat: "Memory", q: "When is Secondary Memory used?", options: ["Immediate processing", "When data is large and cannot fit in primary", "Quick CPU access", "Primary working memory"], correct: 1 },
-    { cat: "Memory", q: "What is a characteristic of Secondary Memory?", options: ["Volatile/lost", "Store info permanently and non-volatile", "Very high processing speed", "Located on motherboard"], correct: 1 },
-    { cat: "Memory", q: "Example of secondary storage memory?", options: ["RAM", "ROM", "Compact Disk (CD)", "CPU cache"], correct: 2 },
-    { cat: "Hardware/Software", q: "Two main components that make up computer system?", options: ["User/Env", "Hardware and Software", "Input/Output", "CPU/Memory"], correct: 1 },
-    { cat: "Hardware/Software", q: "What does 'hardware' refer to?", options: ["Set of instructions", "Mechanical and electronic devices of a computer", "Programs and data", "Users"], correct: 1 },
-    { cat: "Hardware/Software", q: "Example of computer hardware?", options: ["MS Word", "Windows OS", "CPU", "Set of instructions"], correct: 2 },
-    { cat: "Hardware/Software", q: "What is 'software'?", options: ["Physical components", "Set of instructions that drives computer tasks", "Electronic devices", "Environment"], correct: 1 },
-    { cat: "Hardware/Software", q: "Two main categories of software?", options: ["Input/Output", "System software and Application software", "Programming/User", "Hardware/User"], correct: 1 },
-    { cat: "Hardware/Software", q: "Primary function of System Software?", options: ["Specific user tasks", "Operate directly on hardware/provide platform for apps", "Create new programs", "Manage storage only"], correct: 1 },
-    { cat: "Hardware/Software", q: "Examples of System Software?", options: ["Excel/PowerPoint", "Oracle/SAP", "Windows, Linux, Unix", "C++/Java"], correct: 2 },
-    { cat: "Hardware/Software", q: "What is Application Software designed for?", options: ["Manage hardware", "Provide platform", "For benefit of users to perform tasks", "Translate languages"], correct: 2 },
-    { cat: "Hardware/Software", q: "What is 'software'?", options: ["Physical components", "Set of instructions that drives computer tasks", "Electronic devices", "Environment"], correct: 1 },
-    { cat: "Hardware/Software", q: "Two main categories of software?", options: ["Input/Output", "System software and Application software", "Programming/User", "Hardware/User"], correct: 1 },
-    { cat: "Hardware/Software", q: "Primary function of System Software?", options: ["Specific user tasks", "Operate directly on hardware/provide platform for apps", "Create new programs", "Manage storage only"], correct: 1 },
-    { cat: "Hardware/Software", q: "Examples of System Software?", options: ["Excel/PowerPoint", "Oracle/SAP", "Windows, Linux, Unix", "C++/Java"], correct: 2 },
-    { cat: "Hardware/Software", q: "What is Application Software designed for?", options: ["Manage hardware", "Provide platform", "For benefit of users to perform tasks", "Translate languages"], correct: 2 },
-    { cat: "Hardware/Software", q: "Examples of Application Software?", options: ["Windows/Linux", "C++/Java", "Microsoft Word, Excel, PowerPoint", "Device drivers"], correct: 2 },
-    { cat: "Hardware/Software", q: "Correctly differentiate software and hardware?", options: ["Software physical, hardware programs", "Hardware understands high-level, software binary", "Software brings hardware into operation, hardware is physical", "Software changes physical parts"], correct: 2 },
-    { cat: "Hardware/Software", q: "How is software represented?", options: ["Binary codes (1s/0s)", "Physical components", "Any high-level language (BASIC, C++, etc)", "Mechanical devices"], correct: 2 },
-    { cat: "Hardware/Software", q: "What are computer users categorized as?", options: ["Expert only", "Casual only", "Expert users and casual users", "Programmers/operators only"], correct: 2 },
-    { cat: "Hardware/Software", q: "What does 'computing environment' encompass?", options: ["Hardware only", "Building, furniture, auxiliary devices like UPS", "Software apps only", "Internet only"], correct: 1 },
-    { cat: "Classification", q: "Three popular methods for classifying computers?", options: ["Speed, cost, size", "By signal type, purpose, and capacity", "OS, language, interface", "Hardware, software, humanware"], correct: 1 },
-    { cat: "Classification", q: "Classification based on signal type?", options: ["Purpose", "Capacity", "Classification based on signal type", "Generation"], correct: 2 },
-    { cat: "Classification", q: "Three types classified by signal type?", options: ["Mainframe/Mini/Micro", "Special/General", "Digital, Analogue, Hybrid", "1st/2nd/3rd Gen"], correct: 2 },
-    { cat: "Classification", q: "Which represents variables in digits and converts to binary?", options: ["Analogue", "Hybrid", "Digital computer", "Mechanical"], correct: 2 },
-    { cat: "Classification", q: "Digital computers are mostly used in:", options: ["Scientific research", "Commercial and business places", "Entertainment", "Real-time control"], correct: 1 },
-    { cat: "Classification", q: "How does an Analogue computer measure?", options: ["Convert to binary", "Terms of electrical voltage/circuit analogues", "Gears/levers", "Discrete quantities"], correct: 1 },
-    { cat: "Classification", q: "Theoretical accuracy of analogue computers?", options: ["Less accurate than digital", "Exact answer because not approximated to digit", "Limited by digit count", "Highly approximated"], correct: 1 },
-    { cat: "Classification", q: "Classification by purpose includes:", options: ["Mainframe/Micro", "Digital/Analogue", "Special purpose and General purpose", "1st/5th Gen"], correct: 2 },
-    { cat: "Classification", q: "Classification by capacity includes:", options: ["Digital/Analogue/Hybrid", "Special/General", "Mainframe, Mini computers, Micro computers", "Input/Process/Output"], correct: 2 },
-    { cat: "Networking", q: "Security measure associated with Extranets?", options: ["Personal contact", "Reduced cost", "Firewalls and VPNs", "Simplified catalogs"], correct: 2 },
-    { cat: "Networking", q: "Disadvantage of Extranets?", options: ["Enhanced collaboration", "High setup cost", "Easy exchange", "Improved security"], correct: 1 },
-    { cat: "Networking", q: "Key difference between Internet and Intranet accessibility?", options: ["Internet private, Intranet public", "Internet is public, Intranet is private", "Equal accessibility", "Intranet globally accessible"], correct: 1 },
-    { cat: "Networking", q: "Characterized by higher complexity and cost compared to Intranet?", options: ["Internet", "Extranet", "Both Internet and Extranet", "Neither"], correct: 1 },
+    // --- INTRO / LESSON 1 ---
+    { cat: "Intro", q: "What is COS 101?", options: ["Advanced programming", "Introduction to computing sciences", "Hardware maintenance", "Data analysis"], correct: 1, exp: "Course title is Introduction to Computing Sciences." },
+    { cat: "Intro", q: "Which is NOT covered in COS 101 contents?", options: ["Basic components", "Future of computing", "Advanced network security protocols", "History of computing"], correct: 2, exp: "Advanced protocols are beyond the intro scope." },
+    { cat: "Intro", q: "Primary purpose of lab work?", options: ["Theorize trends", "Practical demonstrations of computer/internet usage", "Develop languages", "Economic impact"], correct: 1, exp: "Labs focus on hands-on practical skills." },
+    { cat: "Intro", q: "Objectives: students should understand regarding computers?", options: ["Programming only", "Their history, classification, and impact", "Hardware only", "Software only"], correct: 1, exp: "Broad understanding of the field is required." },
+    { cat: "Intro", q: "Which is a learning outcome for COS 101?", options: ["Design OS", "Explain computing discipline and specializations", "Hardware repair", "AI algorithms"], correct: 1, exp: "Outcome includes understanding the discipline." },
+    { cat: "Definition", q: "How is a computer defined in Lesson 1?", options: ["Device that only processes", "Electronic device that accepts, processes, produces, displays, and stores data", "Machine for input only", "Tool for display without processing"], correct: 1, exp: "Full definition involves input, processing, output, and storage." },
+    { cat: "Definition", q: "Four basic steps of operation?", options: ["Input, storage, display, output", "Input, processing, output, storage", "Processing, storage, display, user interaction", "Data entry, analysis, reporting, archiving"], correct: 1, exp: "Standard IPO+S cycle." },
+    { cat: "Definition", q: "Definition of 'data'?", options: ["Organized facts", "Processed info", "Collection of unorganized facts and figures", "Structured info"], correct: 2, exp: "Data is the raw, unorganized version of facts." },
+    { cat: "Definition", q: "Definition of 'information'?", options: ["Unstructured facts", "Raw input", "Organized, meaningful, and processed data", "Instructions"], correct: 2, exp: "Information is what data becomes after processing." },
+    { cat: "Definition", q: "Three major methods of data processing?", options: ["Digital/Analogue/Hybrid", "Manual, mechanical, computer", "Primary/Secondary/Tertiary", "Input/Process/Output"], correct: 1, exp: "Methods are Manual, Mechanical, and Computerized." },
+    { cat: "Definition", q: "Method described as cumbersome, tiresome, and frustrating?", options: ["Mechanical", "Computer", "Manual method", "Digital"], correct: 2, exp: "Manual methods involve high human effort and slow speed." },
+    { cat: "Definition", q: "Limitations of mechanical method?", options: ["Too accurate", "Noisy, hazardous, error-prone, and untidy", "Too much interaction", "Small volumes only"], correct: 1, exp: "Mechanical devices (like early calculators) were loud and fragile." },
+    { cat: "Definition", q: "Major feature of 'Computer Method'?", options: ["Operations are practically not noisy", "Inconsistent processing", "Errors difficult to correct", "Limited storage"], correct: 0, exp: "Electronic computers are silent and highly consistent." },
+    { cat: "Characteristics", q: "Which characteristic means it can perform millions of calculations in a few seconds?", options: ["Accuracy", "Storage", "Speed", "Reliability"], correct: 2, exp: "Speed allows for rapid complex computation." },
+    { cat: "Characteristics", q: "Computers perform jobs with 100% accuracy provided that:", options: ["Program is well-written", "The input is correct", "Hardware is new", "Power is stable"], correct: 1, exp: "GIGO principle: Garbage In, Garbage Out." },
+    { cat: "Characteristics", q: "Key characteristic regarding ability to store data?", options: ["Limited capacity", "Store large amounts of various types (images, videos, text, audio)", "Numerical data only", "Temporary and always lost"], correct: 1, exp: "Secondary storage allows massive permanent data retention." },
+    { cat: "Characteristics", q: "What does 'Automation' mean?", options: ["Human interaction", "Ability to perform a task automatically once a program is stored", "Processing speed", "Physical size"], correct: 1, exp: "Programs allow computers to run without constant human guidance." },
+    { cat: "Characteristics", q: "How does a computer contribute to reducing paperwork?", options: ["Printing more", "Using electronic files that can be retrieved as needed", "Manual data entry", "Physical storage"], correct: 1, exp: "Electronic storage replaces physical paper filing." },
+    { cat: "Characteristics", q: "Ability to perform tasks related to various fields (science to gaming)?", options: ["Diligence", "Reliability", "Versatility", "Speed"], correct: 2, exp: "Versatility means a single machine can do many different types of jobs." },
+    { cat: "History", q: "How was the 'generation term' initially used?", options: ["Software features", "Varying hardware technologies", "Programming languages", "Size"], correct: 1, exp: "Generations are primarily defined by hardware advancements." },
+    { cat: "History", q: "Technology for First Generation Computers?", options: ["Transistors", "ICs", "Vacuum tubes", "Microprocessors"], correct: 2, exp: "1st Gen = Vacuum Tubes." },
+    { cat: "History", q: "Drawback of First Generation Computers?", options: ["Little heat", "Generated a lot of heat and were very expensive", "Affordable", "Cool air"], correct: 1, exp: "They were extremely hot and consumed massive power." },
+    { cat: "History", q: "What replaced vacuum tubes in Second Generation?", options: ["ICs", "VLSI", "Transistors", "Microprocessors"], correct: 2, exp: "2nd Gen = Transistors." },
+    { cat: "History", q: "Programming languages used in Second Generation?", options: ["Machine only", "Assembly language and high-level (FORTRAN, COBOL)", "C++/Java", "Python"], correct: 1, exp: "This era saw the birth of early high-level languages." },
+    { cat: "History", q: "Advancement characterizing Third Generation?", options: ["Vacuum tubes", "Transistors", "Integrated Circuits (ICs)", "VLSI"], correct: 2, exp: "3rd Gen = ICs (Integrated Circuits)." },
+    { cat: "History", q: "PC revolution associated with which generation?", options: ["2nd", "3rd", "Fourth Generation", "5th"], correct: 2, exp: "4th Gen (Microprocessors) made personal computers possible." },
+    { cat: "History", q: "Technology of Fourth Generation?", options: ["ULSI", "Vacuum tubes", "VLSI circuits", "ICs"], correct: 2, exp: "4th Gen used Very Large Scale Integration." },
+    { cat: "History", q: "Feature of Fifth Generation Computers?", options: ["Vacuum tubes", "Development of true artificial intelligence", "Assembly only", "Limited power"], correct: 1, exp: "5th Gen focuses on AI and natural language." },
+    { cat: "History", q: "Technology associated with Fifth Generation?", options: ["VLSI", "Transistors", "ULSI (Ultra Large-Scale Integration)", "ICs"], correct: 2, exp: "5th Gen uses Ultra Large Scale Integration." },
+    { cat: "Apps", q: "Field using computers for patient history and diagnosis?", options: ["Industry", "Education", "Medical Field", "Banking"], correct: 2, exp: "Medical application handles health data." },
+    { cat: "Apps", q: "Entertainment industry EXCEPTION?", options: ["Watching movies", "Playing games", "Manual data entry for inventory", "MIDI music"], correct: 2, exp: "Inventory is business/industry, not entertainment." },
+    { cat: "Apps", q: "How are computers used in 'Industry'?", options: ["Customer service", "Manage inventory, design products, marketing", "Employee training only", "Finance only"], correct: 1, exp: "Broad business management tools." },
+    { cat: "Apps", q: "Key application in 'Education'?", options: ["Admin only", "Online classes, online examinations, e-books", "Physical grading", "Manual attendance"], correct: 1, exp: "E-learning is a core education application." },
+    { cat: "Apps", q: "Government sector use EXCEPTION?", options: ["Data processing", "Citizen databases", "Missile development", "Manual filing of all documents"], correct: 3, exp: "Computers reduce manual filing." },
+    { cat: "Apps", q: "Sector using computers for ATMs and withdrawals?", options: ["Industry", "Banking", "Entertainment", "Home"], correct: 1, exp: "ATMs are banking technology." },
+    { cat: "Apps", q: "How do computers aid businesses?", options: ["Increase paperwork", "Making transactions easy/accurate and allowing analysis", "Limit access", "Reduce interaction"], correct: 1, exp: "Computers automate and analyze business data." },
+    { cat: "Apps", q: "Computer-based training primary use?", options: ["Travel costs", "Save money and improve performance", "Reduce tech", "Make complex"], correct: 1, exp: "CBT is cost-effective training." },
+    { cat: "Apps", q: "Areas for dance animation and digitizing photos?", options: ["Science", "Banking", "Arts", "Government"], correct: 2, exp: "Digital art and animation fall under Arts." },
+    { cat: "Apps", q: "Supercomputers role in 'Science and Engineering'?", options: ["Basic math", "Stimulate dynamic processes and R&D", "Replace humans", "Admin"], correct: 1, exp: "High-power computing is for simulation and research." },
+    { cat: "System", q: "Three main components of a computer system?", options: ["Software/User/Env", "Keyboard/Monitor/Printer", "CPU, Input devices, Output devices", "RAM/ROM/CPU"], correct: 2, exp: "Input, Process (CPU), Output." },
+    { cat: "System", q: "CPU is often referred to as?", options: ["Memory", "Storage", "The brain of the computer", "Interface"], correct: 2, exp: "The CPU handles all instructions." },
+    { cat: "System", q: "Two components of the CPU?", options: ["Input/Output", "Memory/Storage", "Arithmetic Logic Unit (ALU) and Control Unit", "RAM/ROM"], correct: 2, exp: "The ALU does math; the CU directs traffic." },
+    { cat: "System", q: "Where does comparison and decision-making take place?", options: ["Control Unit", "Memory Unit", "Arithmetic Logic Unit (ALU)", "Input Unit"], correct: 2, exp: "ALU handles logic (AND/OR, <, >)." },
+    { cat: "System", q: "Primary function of Control Unit?", options: ["Calculations", "Extract instructions, maintain and direct operations", "Store data", "Display results"], correct: 1, exp: "The CU acts like a traffic cop for data." },
+    { cat: "System", q: "Unit of computer memory?", options: ["Bit", "Byte", "Kilobyte", "Megabyte"], correct: 1, exp: "The byte (8 bits) is the standard unit of storage." },
+    { cat: "System", q: "Example of an input device?", options: ["Monitor", "Printer", "Keyboard", "Sound system"], correct: 2, exp: "Keyboard enters data into the system." },
+    { cat: "System", q: "Characteristic of a mouse?", options: ["Printing", "Pointing device used to point data on screen", "Convert to digital", "Receive dictation"], correct: 1, exp: "A mouse is a GUI pointing device." },
+    { cat: "System", q: "What does a scanner do?", options: ["Hard copy", "Spray ink", "Transform printed material/photos into digital", "Sound output"], correct: 2, exp: "Scanner converts physical to digital." },
+    { cat: "System", q: "Read information printed as bars?", options: ["Barcode reader", "Voice System", "Digital Pen", "Touch screen"], correct: 0, exp: "Used in retail for inventory." },
+    { cat: "System", q: "Primary characteristic of a monitor?", options: ["Hard copy", "Visual Display Unit (VDU)", "Print without ribbon", "Sound output"], correct: 1, exp: "VDU is a technical name for a monitor." },
+    { cat: "System", q: "Purpose of a printer?", options: ["Receive data", "Calculations", "Print info on paper (hard copy)", "Store data"], correct: 2, exp: "Produces permanent hard copies." },
+    { cat: "Printers", q: "Two main types of printers?", options: ["Char/Line", "Laser/Inkjet", "Impact and Non-Impact", "Dot/Daisy"], correct: 2, exp: "Impact (striking) vs Non-Impact (laser/ink)." },
+    { cat: "Printers", q: "How do impact printers produce characters?", options: ["Spray ink", "Laser", "Striking characters on a ribbon", "Heating"], correct: 2, exp: "Uses physical impact to mark paper." },
+    { cat: "Printers", q: "Low consumable cost and very noisy?", options: ["Non-impact", "Laser", "Inkjet", "Impact printers"], correct: 3, exp: "Impact printers are notoriously loud." },
+    { cat: "Printers", q: "Two types of impact printers mentioned?", options: ["Laser/Inkjet", "Dot Matrix and Daisy Wheel", "Char/Line", "Drum/Chain"], correct: 1, exp: "Both use ribbons and hammers." },
+    { cat: "Printers", q: "Which printer prints one character at a time?", options: ["Line", "Page", "Character printer", "Drum"], correct: 2, exp: "Serial/Character printers are slower than line printers." },
+    { cat: "Printers", q: "Disadvantage of Dot Matrix?", options: ["High cost", "Slow speed and poor quality", "Heat", "Special ribbon"], correct: 1, exp: "Quality is grainy compared to modern tech." },
+    { cat: "Printers", q: "Daisy Wheel printers used for:", options: ["Bulk reports", "High-quality word processing (few letters)", "Graphics", "Fast line"], correct: 1, exp: "They produce typewriter-like quality but no graphics." },
+    { cat: "Printers", q: "What characterizes Line printers?", options: ["One char", "One line at a time", "Ink spray", "Quiet"], correct: 1, exp: "Used for high-speed industrial printing." },
+    { cat: "Printers", q: "Drum printers known for:", options: ["Low speed", "Very high speed and inability to change fonts", "One char", "Ink cartridges"], correct: 1, exp: "Drum printers are fast but fixed-font." },
+    { cat: "Printers", q: "Advantage of Chain printers?", options: ["Noisy", "Fonts easily changed and different languages", "Expensive", "Low quality"], correct: 1, exp: "The character chain can be swapped out." },
+    { cat: "Printers", q: "Non-impact printers also called:", options: ["Character", "Line", "Page printers", "Impact"], correct: 2, exp: "They usually process a whole page at once." },
+    { cat: "Printers", q: "Non-impact vs impact characteristic?", options: ["Noisier", "Faster and not noisy", "Lower quality", "Limited font"], correct: 1, exp: "Non-impact tech is superior in speed and quietness." },
+    { cat: "Printers", q: "Uses laser lights to produce dots?", options: ["Inkjet", "Dot Matrix", "Laser printer", "Daisy Wheel"], correct: 2, exp: "Laser tech uses light and static." },
+    { cat: "Printers", q: "Disadvantage of Laser printers?", options: ["Slow", "Cannot produce multiple copies in single printing", "Noisy", "Poor quality"], correct: 1, exp: "Cannot use carbon paper for multiple copies." },
+    { cat: "Printers", q: "How do Inkjet printers produce characters?", options: ["Striking ribbon", "Spraying small drops of ink", "Laser beams", "Heating"], correct: 1, exp: "Uses microscopic ink nozzles." },
+    { cat: "Printers", q: "Disadvantage of Inkjet compared to laser?", options: ["More expensive per page", "Lower printing quality", "Faster", "Not noisy"], correct: 0, exp: "Ink is usually more expensive than toner over time." },
+    { cat: "Memory", q: "What are the two main types of computer memory?", options: ["Volatile and Non-volatile", "Primary Memory and Secondary Memory", "RAM and ROM", "Internal and External Memory"], correct: 1, exp: "Memory is divided by location/priority." },
+    { cat: "Memory", q: "What is a characteristic of Primary Memory?", options: ["Permanent storage", "Main memory present on the motherboard", "Slower than secondary", "Non-volatile"], correct: 1, exp: "Primary memory is directly accessible by the CPU." },
+    { cat: "Memory", q: "What is RAM referred to as, and what happens when power is off?", options: ["Permanent; retained", "Temporary memory; information is lost", "ROM; retained", "Secondary; retained"], correct: 1, exp: "RAM is volatile; data vanishes without power." },
+    { cat: "Memory", q: "RAM is also known as:", options: ["Permanent memory", "Programmable memory", "Read-Only Memory", "Volatile memory"], correct: 3, exp: "Volatile = Temporary." },
+    { cat: "Memory", q: "Which of the following is NOT a function of RAM?", options: ["Stores data until processed", "Working space for processing", "Stores permanent system instructions", "Stores processed data before output"], correct: 2, exp: "ROM stores permanent instructions (BIOS)." },
+    { cat: "Memory", q: "What is ROM referred to as, and what happens when power is off?", options: ["Temporary; lost", "Permanent memory; info available when off", "Volatile; lost", "RAM; lost"], correct: 1, exp: "ROM is non-volatile." },
+    { cat: "Memory", q: "What can be said about instructions stored in ROM?", options: ["Only read and cannot be modified", "Modified by user", "Temporary and lost", "Used for temporary data"], correct: 0, exp: "Read-Only is in the name." },
+    { cat: "Memory", q: "Which type of ROM allows most flexibility in erasing/reprogramming?", options: ["PROM", "EPROM", "EEPROM", "Standard ROM"], correct: 2, exp: "EEPROM is electrically erasable." },
+    { cat: "Memory", q: "Accurate difference between RAM and ROM?", options: ["RAM non-volatile, ROM volatile", "RAM low speed, ROM high speed", "RAM more expensive/higher speed than ROM", "ROM temporary, RAM permanent"], correct: 2, exp: "RAM is designed for high-speed active data." },
+    { cat: "Memory", q: "When is Secondary Memory used?", options: ["Immediate processing", "When data is large and cannot fit in primary", "Quick CPU access", "Primary working memory"], correct: 1, exp: "Secondary storage is for bulk permanent data." },
+    { cat: "Memory", q: "What is a characteristic of Secondary Memory?", options: ["Volatile/lost", "Store info permanently and non-volatile", "Very high processing speed", "Located on motherboard"], correct: 1, exp: "Hard drives and USBs are secondary storage." },
+    { cat: "Memory", q: "Example of secondary storage memory?", options: ["RAM", "ROM", "Compact Disk (CD)", "CPU cache"], correct: 2, exp: "A CD is a removable storage medium." },
+    { cat: "Hardware/Software", q: "Two main components that make up computer system?", options: ["User/Env", "Hardware and Software", "Input/Output", "CPU/Memory"], correct: 1, exp: "A system requires both physical parts and instructions." },
+    { cat: "Hardware/Software", q: "What does 'hardware' refer to?", options: ["Set of instructions", "Mechanical and electronic devices of a computer", "Programs and data", "Users"], correct: 1, exp: "Hardware is anything you can touch." },
+    { cat: "Hardware/Software", q: "Example of computer hardware?", options: ["MS Word", "Windows OS", "CPU", "Set of instructions"], correct: 2, exp: "CPU is the central chip (Hardware)." },
+    { cat: "Hardware/Software", q: "What is 'software'?", options: ["Physical components", "Set of instructions that drives computer tasks", "Electronic devices", "Environment"], correct: 1, exp: "Software is the collection of programs." },
+    { cat: "Hardware/Software", q: "Two main categories of software?", options: ["Input/Output", "System software and Application software", "Programming/User", "Hardware/User"], correct: 1, exp: "OS vs User Programs." },
+    { cat: "Hardware/Software", q: "Primary function of System Software?", options: ["Specific user tasks", "Operate directly on hardware/provide platform for apps", "Create new programs", "Manage storage only"], correct: 1, exp: "It bridges the gap between hardware and apps." },
+    { cat: "Hardware/Software", q: "Examples of System Software?", options: ["Excel/PowerPoint", "Oracle/SAP", "Windows, Linux, Unix", "C++/Java"], correct: 2, exp: "Operating systems are system software." },
+    { cat: "Hardware/Software", q: "What is Application Software designed for?", options: ["Manage hardware", "Provide platform", "For benefit of users to perform tasks", "Translate languages"], correct: 2, exp: "End-user tools (like games or Word)." },
+    { cat: "Hardware/Software", q: "Examples of Application Software?", options: ["Windows/Linux", "C++/Java", "Microsoft Word, Excel, PowerPoint", "Device drivers"], correct: 2, exp: "Common office tools are apps." },
+    { cat: "Hardware/Software", q: "Correctly differentiate software and hardware?", options: ["Software physical, hardware programs", "Hardware understands high-level, software binary", "Software brings hardware into operation, hardware is physical", "Software changes physical parts"], correct: 2, exp: "Hardware is the body, Software is the mind." },
+    { cat: "Hardware/Software", q: "How is software represented?", options: ["Binary codes (1s/0s)", "Physical components", "Any high-level language (BASIC, C++, etc)", "Mechanical devices"], correct: 2, exp: "Source code in HLL is how humans write software." },
+    { cat: "Hardware/Software", q: "What are computer users categorized as?", options: ["Expert only", "Casual only", "Expert users and casual users", "Programmers/operators only"], correct: 2, exp: "Varies by skill and usage level." },
+    { cat: "Hardware/Software", q: "What does 'computing environment' encompass?", options: ["Hardware only", "Building, furniture, auxiliary devices like UPS", "Software apps only", "Internet only"], correct: 1, exp: "The physical surroundings matter for setup." },
+    { cat: "Classification", q: "Three popular methods for classifying computers?", options: ["Speed, cost, size", "By signal type, purpose, and capacity", "OS, language, interface", "Hardware, software, humanware"], correct: 1, exp: "Standard classification metrics." },
+    { cat: "Classification", q: "Classification based on signal type?", options: ["Purpose", "Capacity", "Classification based on signal type", "Generation"], correct: 2, exp: "How the data is transmitted (Digital/Analogue)." },
+    { cat: "Classification", q: "Three types classified by signal type?", options: ["Mainframe/Mini/Micro", "Special/General", "Digital, Analogue, Hybrid", "1st/2nd/3rd Gen"], correct: 2, exp: "Discrete vs Continuous vs Combined." },
+    { cat: "Classification", q: "Which represents variables in digits and converts to binary?", options: ["Analogue", "Hybrid", "Digital computer", "Mechanical"], correct: 2, exp: "Digital logic is binary." },
+    { cat: "Classification", q: "Digital computers are mostly used in:", options: ["Scientific research", "Commercial and business places", "Entertainment", "Real-time control"], correct: 1, exp: "Standard business use is digital." },
+    { cat: "Classification", q: "How does an Analogue computer measure?", options: ["Convert to binary", "Terms of electrical voltage/circuit analogues", "Gears/levers", "Discrete quantities"], correct: 1, exp: "Analogue measures physical flow." },
+    { cat: "Classification", q: "Theoretical accuracy of analogue computers?", options: ["Less accurate than digital", "Exact answer because not approximated to digit", "Limited by digit count", "Highly approximated"], correct: 1, exp: "No rounding errors in pure analogue measurements." },
+    { cat: "Classification", q: "Classification by purpose includes:", options: ["Mainframe/Micro", "Digital/Analogue", "Special purpose and General purpose", "1st/5th Gen"], correct: 2, exp: "Fixed task vs multi-task." },
+    { cat: "Classification", q: "Classification by capacity includes:", options: ["Digital/Analogue/Hybrid", "Special/General", "Mainframe, Mini computers, Micro computers", "Input/Process/Output"], correct: 2, exp: "Size and power tiers." },
+    { cat: "Networking", q: "Security measure associated with Extranets?", options: ["Personal contact", "Reduced cost", "Firewalls and VPNs", "Simplified catalogs"], correct: 2, exp: "Security is needed for external access." },
+    { cat: "Networking", q: "Disadvantage of Extranets?", options: ["Enhanced collaboration", "High setup cost", "Easy exchange", "Improved security"], correct: 1, exp: "Secure external portals are pricey to build." },
+    { cat: "Networking", q: "Key difference between Internet and Intranet accessibility?", options: ["Internet private, Intranet public", "Internet is public, Intranet is private", "Equal accessibility", "Intranet globally accessible"], correct: 1, exp: "Internet = Open; Intranet = Closed." },
+    { cat: "Networking", q: "Characterized by higher complexity and cost compared to Intranet?", options: ["Internet", "Extranet", "Both Internet and Extranet", "Neither"], correct: 1, exp: "Extranets require complex authentication for external users." },
 
-    // --- NEW SECTIONS: MS WORD (10 Questions) ---
-    { cat: "MS Word", q: "What is Microsoft Word primarily designed for?", options: ["Spreadsheet analysis", "Typing documents and graphical designing", "Database management", "Creating presentations"], correct: 1 },
-    { cat: "MS Word", q: "What is a 'word processor'?", options: ["Device for printing", "Program for input, editing, formatting, and output of text", "Spreadsheet software", "Tool for charts"], correct: 1 },
-    { cat: "MS Word", q: "When creating a new document, when can the author choose to format it?", options: ["Only before typing", "Only after typing", "Before or after typing", "Automatically applied"], correct: 2 },
-    { cat: "MS Word", q: "What is the purpose of saving a document periodically?", options: ["Look attractive", "Avoid loss due to power interruptions", "Change font", "Add graphics"], correct: 1 },
-    { cat: "MS Word", q: "What is a 'soft return' in Word?", options: ["Manual ENTER", "Cursor automatically moves to next line at the end", "Page break", "New paragraph"], correct: 1 },
-    { cat: "MS Word", q: "What is a 'hard return' in Word?", options: ["Auto move", "Manually moving cursor via ENTER key", "Formatting text", "Inserting footnote"], correct: 1 },
-    { cat: "MS Word", q: "What is 'WordArt' used for?", options: ["Calculations", "Change words into designs and graphic images", "Create tables", "Mailing lists"], correct: 1 },
-    { cat: "MS Word", q: "What is a 'drop cap'?", options: ["End capital", "Large capital letter at beginning of paragraph", "Special character", "Bullet point"], correct: 1 },
-    { cat: "MS Word", q: "What is 'Mail Merge' in MS Word?", options: ["Combine text/graphics", "Create letters for multiple people without retyping", "Spell check", "Insert images"], correct: 1 },
-    { cat: "MS Word", q: "What are the two main files involved in a Mail Merge process?", options: ["Form/Data file", "Document/Template", "Main document and Data source", "Letter/Recipient"], correct: 2 },
+    // --- MS WORD SECTION ---
+    { cat: "MS Word", q: "What is Microsoft Word primarily designed for?", options: ["Spreadsheet analysis", "Typing documents and graphical designing", "Database management", "Creating presentations"], correct: 1, exp: "MS Word is a document creation tool." },
+    { cat: "MS Word", q: "What is a 'word processor'?", options: ["A device for printing documents", "A computer program for input, editing, formatting, and output of text", "A type of spreadsheet software", "A tool for creating charts"], correct: 1, exp: "Standard definition of software like Word." },
+    { cat: "MS Word", q: "When creating a new document in Word, when can the author choose to format it?", options: ["Only before typing", "Only after typing", "Before or after typing", "Formatting is automatically applied"], correct: 2, exp: "You can set style before you start or change it later." },
+    { cat: "MS Word", q: "What is the purpose of saving a document periodically?", options: ["To make it look more attractive", "To avoid loss of information due to power interruptions", "To change the document's font", "To add graphics"], correct: 1, exp: "Prevents data loss from crashes or power cuts." },
+    { cat: "MS Word", q: "What is a 'soft return' in Word?", options: ["Manually moving to the next line by pressing ENTER", "The cursor automatically moving to the next line when it reaches the end of a line", "Inserting a page break", "Creating a new paragraph"], correct: 1, exp: "Also called 'Word Wrap'." },
+    { cat: "MS Word", q: "What is a 'hard return' in Word?", options: ["The cursor automatically moving to the next line", "Manually moving the cursor to the beginning of the next line by pressing the ENTER key", "Formatting text to fit the line", "Inserting a footnote"], correct: 1, exp: "User manually forces a new line." },
+    { cat: "MS Word", q: "What is 'WordArt' used for in MS Word?", options: ["To perform calculations", "To change words into designs and graphic images", "To create tables", "To manage mailing lists"], correct: 1, exp: "Decorative text effects." },
+    { cat: "MS Word", q: "What is a 'drop cap'?", options: ["A capital letter at the end of a paragraph", "A large capital letter used as a decorative element at the beginning of a paragraph", "A special character for emphasis", "A type of bullet point"], correct: 1, exp: "Traditional styling for first letters of paragraphs." },
+    { cat: "MS Word", q: "What is 'Mail Merge' in MS Word?", options: ["A feature to combine text and graphics", "A feature to create letters for multiple people without retyping the original letter", "A tool for spell checking", "A method for inserting images"], correct: 1, exp: "Links document templates to contact lists." },
+    { cat: "MS Word", q: "What are the two main files involved in a Mail Merge process?", options: ["Form file and Data file", "Document file and Template file", "Main document and Data source", "Letter file and Recipient file"], correct: 2, exp: "Terminology used in Word's merge engine." },
 
-    // --- FORTRAN PROGRAMMING (49 Questions) ---
-    { cat: "FORTRAN", q: "What is the name FORTRAN an acronym for?", options: ["FORmula TRANslation", "FORmat TRANsmission", "FORward TRANsaction", "FORTified TRANsmission"], correct: 0 },
-    { cat: "FORTRAN", q: "Who led the development of FORTRAN?", options: ["Bill Gates", "Steve Jobs", "John Backus", "Alan Turing"], correct: 2 },
-    { cat: "FORTRAN", q: "When was FORTRAN officially released?", options: ["1954", "1957", "1958", "1962"], correct: 1 },
-    { cat: "FORTRAN", q: "Which version is the focus for COS 101?", options: ["FORTRAN IV", "FORTRAN 77", "FORTRAN 95 and 2003", "FORTRAN 2008"], correct: 2 },
-    { cat: "FORTRAN", q: "Purpose of the Plato environment?", options: ["Spreadsheets", "Create/edit programs and get them to run", "Design GUI", "Network topology"], correct: 1 },
-    { cat: "FORTRAN", q: "What does the '.f95' extension signify?", options: ["FORTRAN 77", "FORTRAN 95 file", "FORTRAN 2003", "General program"], correct: 1 },
-    { cat: "FORTRAN", q: "Basic structure of a FORTRAN program unit?", options: ["start-process-end", "begin-execute-finish", "program, implicit none, statements, end program", "load-run-terminate"], correct: 2 },
-    { cat: "FORTRAN", q: "Purpose of the 'implicit none' statement?", options: ["Allow implicit typing", "Turn off implicit typing / enforce explicit declaration", "Declare floats", "Comment lines"], correct: 1 },
-    { cat: "FORTRAN", q: "How are comments indicated in FORTRAN?", options: ["//", "#", "!", "/* */"], correct: 2 },
-    { cat: "FORTRAN", q: "Function of the 'print *' command?", options: ["Print to file", "Display data on the screen", "Print variable types", "Clear screen"], correct: 1 },
-    { cat: "FORTRAN", q: "FORTRAN case sensitivity rule?", options: ["Always sensitive", "Case-insensitive, except for string literals", "Sensitive for identifiers only", "Sensitive for keywords only"], correct: 1 },
-    { cat: "FORTRAN", q: "Which is NOT part of the basic character set?", options: ["Letters A-Z", "Digits 0-9", "Ampersand (&)", "Pound (#) symbol"], correct: 3 },
-    { cat: "FORTRAN", q: "What is an 'identifier' in FORTRAN?", options: ["Keyword", "Name to identify variable, procedure, etc.", "Math operator", "Predefined function"], correct: 1 },
-    { cat: "FORTRAN", q: "Rules for a FORTRAN identifier?", options: ["Max 63, start with digit", "Max 31, alphanumeric, must start with letter", "Max 10, letters only", "Max 31, numbers only"], correct: 1 },
-    { cat: "FORTRAN", q: "What are 'keywords' in FORTRAN?", options: ["User variable names", "Special reserved words for the language", "Comments", "Predefined constants"], correct: 1 },
-    { cat: "FORTRAN", q: "Which is a FORTRAN keyword?", options: ["variable", "function", "program", "constant"], correct: 2 },
-    { cat: "FORTRAN", q: "How many intrinsic data types does FORTRAN provide?", options: ["3", "5", "7", "10"], correct: 1 },
-    { cat: "FORTRAN", q: "Which is NOT an intrinsic data type?", options: ["Integer", "Real", "Boolean", "Character"], correct: 2 },
-    { cat: "FORTRAN", q: "What does the huge() function return?", options: ["Smallest value", "Largest value for specific integer type", "Square root", "Date/Time"], correct: 1 },
-    { cat: "FORTRAN", q: "What does the 'kind' specifier allow for integers?", options: ["Real precision", "Number of bytes for the type", "Custom characters", "Logical variables"], correct: 1 },
-    { cat: "FORTRAN", q: "What numbers does 'Real Type' store?", options: ["Whole numbers", "Floating-point numbers", "Complex numbers", "Boolean"], correct: 1 },
-    { cat: "FORTRAN", q: "What does 'Complex Type' store?", options: ["Single values", "Numbers with real and imaginary parts", "Text strings", "True/False"], correct: 1 },
-    { cat: "FORTRAN", q: "Values for 'Logical Type' in FORTRAN?", options: ["1 and 0", "true/false", ".true. and .false.", "Yes/No"], correct: 2 },
-    { cat: "FORTRAN", q: "How is string length specified?", options: ["size", "len specifier", "length", "Default 10"], correct: 1 },
-    { cat: "FORTRAN", q: "What is 'implicit typing'?", options: ["Explicit declaration", "Type determined by first letter of name", "All are integers", "Predefined names"], correct: 1 },
-    { cat: "FORTRAN", q: "What is a 'variable'?", options: ["Fixed value", "Name given to a storage area manipulated by program", "Operator symbol", "Reserved word"], correct: 1 },
-    { cat: "FORTRAN", q: "Where are variables declared?", options: ["After executable code", "At beginning of program/subprogram", "In comments", "Via 'var'"], correct: 1 },
-    { cat: "FORTRAN", q: "Syntax for variable declaration?", options: ["name :: specifier", "declare specifier name", "type-specifier :: variable_name", "variable specifier name"], correct: 2 },
-    { cat: "FORTRAN", q: "What are 'constants'?", options: ["Changeable values", "Fixed values program cannot alter", "Structure keywords", "Calculations"], correct: 1 },
-    { cat: "FORTRAN", q: "Two types of constants in FORTRAN?", options: ["Integer/Real", "Literal and Named", "Pos/Neg", "Small/Large"], correct: 1 },
-    { cat: "FORTRAN", q: "How are 'named constants' declared?", options: ["constant attribute", "parameter attribute", "final attribute", "Directly assigned"], correct: 1 },
-    { cat: "FORTRAN", q: "Gravitational constant in example?", options: ["9.8", "9.81", "10.0", "3.14"], correct: 1 },
-    { cat: "FORTRAN", q: "What is an 'operator'?", options: ["Symbol for math/logic manipulations", "Keyword", "Storage name", "Comment"], correct: 0 },
-    { cat: "FORTRAN", q: "Which is an arithmetic operator?", options: [".eq.", "==", "**", ".and."], correct: 2 },
-    { cat: "FORTRAN", q: "What does the '/' operator do?", options: ["Add", "Subtract", "Multiply", "Division"], correct: 3 },
-    { cat: "FORTRAN", q: "Operator for exponentiation?", options: ["^", "**", "exp", "pow"], correct: 1 },
-    { cat: "FORTRAN", q: "What does '>' check?", options: ["Less than", "Greater than", "Equal", "Not equal"], correct: 1 },
-    { cat: "FORTRAN", q: "Which relational operator is equivalent to .lt.?", options: [">", ">=", "<", "!="], correct: 2 },
-    { cat: "FORTRAN", q: "Equivalent of '!=' in FORTRAN?", options: [".eq.", ".ne.", ".gt.", ".le."], correct: 1 },
-    { cat: "FORTRAN", q: "Which is a logical operator?", options: ["+", ">", ".or.", "="], correct: 2 },
-    { cat: "FORTRAN", q: ".and. evaluates to true if:", options: ["One is true", "Both operands are true", "Both are false", "One true, one false"], correct: 1 },
-    { cat: "FORTRAN", q: "Effect of .not. operator?", options: ["Both true", "Reverses logical state", "Either true", "Equivalence"], correct: 1 },
-    { cat: "FORTRAN", q: "What does .eqv. check?", options: ["Non-equivalence", "Equivalence of two logical values", "AND condition", "OR condition"], correct: 1 },
-    { cat: "FORTRAN", q: "Operator precedence determines?", options: ["Declaration order", "Grouping of terms/evaluation order", "Loop type", "Conditional structure"], correct: 1 },
-    { cat: "FORTRAN", q: "Which has higher precedence?", options: ["Additive (+,-)", "Multiplicative (*, /)", "Same", "Depends on operand"], correct: 1 },
-    { cat: "FORTRAN", q: "What are 'control structures'?", options: ["Declare vars", "Define types", "Direct flow of program execution", "Arithmetic"], correct: 2 },
-    { cat: "FORTRAN", q: "Construct for 'single selection'?", options: ["If-then-else", "Do loop", "If...then", "Select Case"], correct: 2 },
-    { cat: "FORTRAN", q: "When is if-then block executed?", options: ["Expression false", "Expression true", "Always", "With else"], correct: 1 },
-    { cat: "FORTRAN", q: "Purpose of 'else' statement?", options: ["If true", "Execute when if condition is false", "Alternative check", "Terminate"], correct: 1 },
-    { cat: "FORTRAN", q: "When is 'else' in if-else if-else executed?", options: ["First true", "Else if true", "None of preceding are true", "Start"], correct: 2 },
-    { cat: "FORTRAN", q: "Else if characteristic?", options: ["At end", "Can be used one or more times", "No else needed", "Mandatory"], correct: 1 },
-    { cat: "FORTRAN", q: "What does 'select case' allow?", options: ["Test variable against list of values", "Repeat loop", "Line branch", "Check true/false only"], correct: 0 },
-    { cat: "FORTRAN", q: "Checked value in select case?", options: ["Condition", "A case", "Selector", "Variable"], correct: 1 },
-    { cat: "FORTRAN", q: "Purpose of 'case default'?", options: ["First case", "Handle no matches", "End block", "Variable define"], correct: 1 },
-    { cat: "FORTRAN", q: "Loop statement purpose?", options: ["Execute multiple times", "Declare", "Functions", "Errors"], correct: 0 },
-    { cat: "FORTRAN", q: "Which is a FORTRAN loop?", options: ["If-then", "Do loop", "Select Case", "Print"], correct: 1 },
-    { cat: "FORTRAN", q: "Do while characteristic?", options: ["Fixed number", "Tests condition before executing body", "Executes at least once", "Explicit counter"], correct: 1 },
-    { cat: "FORTRAN", q: "What does 'do n = 1, 10' do?", options: ["Indefinite", "Iterates with n taking values 1 to 10", "Wait for 10", "No counter"], correct: 1 },
-    { cat: "FORTRAN", q: "Factorial do-while: what if (n <= 10) is initially false?", options: ["Execute once", "Will not execute at all", "Wait for 10", "Error"], correct: 1 }
+    // --- FORTRAN SECTION ---
+    { cat: "FORTRAN", q: "What is the name FORTRAN an acronym for?", options: ["FORmula TRANslation", "FORmat TRANsmission", "FORward TRANsaction", "FORTified TRANsmission"], correct: 0, exp: "Designed for mathematical formulas." },
+    { cat: "FORTRAN", q: "Who led the development of the FORTRAN programming language?", options: ["Bill Gates", "Steve Jobs", "John Backus", "Alan Turing"], correct: 2, exp: "Developed by IBM team led by Backus." },
+    { cat: "FORTRAN", q: "When was FORTRAN officially released?", options: ["1954", "1957", "1958", "1962"], correct: 1, exp: "First high-level language, released 1957." },
+    { cat: "FORTRAN", q: "Which version of FORTRAN is the focus for the COS 101 course mentioned in the text?", options: ["FORTRAN IV", "FORTRAN 77", "FORTRAN 95 and FORTRAN 2003", "FORTRAN 2008"], correct: 2, exp: "Modern Fortran focuses on 95/2003 standards." },
+    { cat: "FORTRAN", q: "What is the purpose of the Plato environment mentioned in the text?", options: ["To perform spreadsheet calculations", "To create and edit programs and get them to run", "To design graphical user interfaces", "To manage network topology"], correct: 1, exp: "Plato is an IDE (Integrated Development Environment)." },
+    { cat: "FORTRAN", q: "What does the '.f95' file extension signify for a FORTRAN file?", options: ["It is a FORTRAN 77 file", "It is a FORTRAN 95 file", "It is a FORTRAN 2003 file", "It is a general FORTRAN program file"], correct: 1, exp: "Standard extension for v95." },
+    { cat: "FORTRAN", q: "What is the basic structure of a FORTRAN program unit?", options: ["start, process, end", "begin, execute, finish", "program, implicit none, statements, end program", "load, run, terminate"], correct: 2, exp: "Follows strict block structure." },
+    { cat: "FORTRAN", q: "What is the purpose of the implicit none statement in FORTRAN?", options: ["To allow implicit typing of variables", "To turn off implicit typing and enforce explicit variable declaration", "To declare variables as floating-point numbers", "To comment out lines of code"], correct: 1, exp: "Prevents automatic typing and reduces bugs." },
+    { cat: "FORTRAN", q: "How are comments indicated in FORTRAN?", options: ["Using //", "Using #", "Using !", "Using /* ... */"], correct: 2, exp: "Exclamation point starts a comment." },
+    { cat: "FORTRAN", q: "What is the function of the print * command in FORTRAN?", options: ["To print output to a file", "To display data on the screen", "To print variable types", "To clear the screen"], correct: 1, exp: "Standard list-directed output." },
+    { cat: "FORTRAN", q: "What does FORTRAN allow regarding case sensitivity, with an exception?", options: ["It is case-sensitive for all aspects.", "It is case-insensitive, except for string literals.", "It is case-insensitive for keywords but sensitive for identifiers.", "It is case-sensitive for keywords and identifiers."], correct: 1, exp: "Code is insensitive, but 'Hello' is different from 'hello'." },
+    { cat: "FORTRAN", q: "Which of the following is NOT part of the basic character set of FORTRAN?", options: ["Letters A-Z and a-z", "Digits 0-9", "The ampersand (&) symbol", "The pound (#) symbol"], correct: 3, exp: "Hash/Pound is not a basic Fortran character." },
+    { cat: "FORTRAN", q: "What is an 'identifier' in FORTRAN?", options: ["A reserved keyword", "A name used to identify a variable, procedure, or user-defined item", "A specific mathematical operator", "A predefined function"], correct: 1, exp: "Generic name for a named item." },
+    { cat: "FORTRAN", q: "What are the rules for a FORTRAN identifier?", options: ["Max 63 characters, alphanumeric and underscores, can start with a digit, case-sensitive.", "Max 31 characters, alphanumeric and underscores, must start with a letter, case-insensitive.", "Max 10 characters, only letters, cannot contain underscores, case-sensitive.", "Max 31 characters, only numbers, can start with a letter, case-insensitive."], correct: 1, exp: "Must start with Alpha, max 31 length." },
+    { cat: "FORTRAN", q: "What are 'keywords' in FORTRAN?", options: ["User-defined names for variables", "Special words reserved for the language that cannot be used as identifiers", "Comments within the code", "Predefined constants"], correct: 1, exp: "Reserved words (like PRINT, PROGRAM)." },
+    { cat: "FORTRAN", q: "Which of the following is a FORTRAN keyword?", options: ["variable", "function", "program", "constant"], correct: 2, exp: "Used to start a program unit." },
+    { cat: "FORTRAN", q: "How many intrinsic data types does FORTRAN provide?", options: ["3", "5", "7", "10"], correct: 1, exp: "Integer, Real, Complex, Logical, Character." },
+    { cat: "FORTRAN", q: "Which is NOT an intrinsic data type in FORTRAN?", options: ["Integer", "Real", "Boolean", "Character"], correct: 2, exp: "Fortran uses 'Logical', not 'Boolean' name." },
+    { cat: "FORTRAN", q: "What does the huge() function in FORTRAN return?", options: ["The smallest value that can be held by a specific integer data type", "The largest value that can be held by a specific integer data type", "The square root of a number", "The current date and time"], correct: 1, exp: "Returns maximum range of the type." },
+    { cat: "FORTRAN", q: "What does the kind specifier in FORTRAN allow you to do with integer types?", options: ["Specify the precision of real numbers", "Specify the number of bytes for the integer type", "Define custom character sets", "Create logical variables"], correct: 1, exp: "Sets memory size (e.g. 4 vs 8 bytes)." },
+    { cat: "FORTRAN", q: "What kind of numbers does the 'Real Type' in FORTRAN store?", options: ["Whole numbers", "Floating-point numbers", "Complex numbers", "Boolean values"], correct: 1, exp: "Decimals / fractions." },
+    { cat: "FORTRAN", q: "In FORTRAN, what does the 'Complex Type' store?", options: ["Single numerical values", "Numbers with both a real and an imaginary part", "Text strings", "True or false values"], correct: 1, exp: "Used in advanced math (e.g. 3.0 + 4.0i)." },
+    { cat: "FORTRAN", q: "What are the only two possible values for the 'Logical Type' in FORTRAN?", options: ["1 and 0", "'true' and 'false'", ".true. and .false.", "Yes and No"], correct: 2, exp: "Dots are required in Fortran syntax." },
+    { cat: "FORTRAN", q: "How is the length of a character string specified in FORTRAN?", options: ["Using the size specifier", "Using the len specifier", "Using the length specifier", "By default, it is always 10 characters"], correct: 1, exp: "e.g. character(len=20)." },
+    { cat: "FORTRAN", q: "What is 'implicit typing' in older versions of FORTRAN?", options: ["Explicitly declaring all variables before use.", "Not having to declare variables; their type is determined by the first letter of their name.", "Automatically assigning all variables as integers.", "Using only predefined variable names."], correct: 1, exp: "I-N letters were integers; others real." },
+    { cat: "FORTRAN", q: "What is a 'variable' in FORTRAN?", options: ["A fixed value that cannot be changed during execution.", "A name given to a storage area that programs can manipulate.", "A symbol representing an operator.", "A reserved keyword."], correct: 1, exp: "Storage location for dynamic data." },
+    { cat: "FORTRAN", q: "How are variables declared in FORTRAN?", options: ["After the executable statements.", "At the beginning of a program or subprogram in a type declaration statement.", "Within the comments of the program.", "By using the var keyword."], correct: 1, exp: "Must be declared before logic starts." },
+    { cat: "FORTRAN", q: "What is the syntax for variable declaration in FORTRAN?", options: ["variable_name :: type-specifier", "declare type_specifier variable_name", "type-specifier :: variable_name", "variable type_specifier variable_name"], correct: 2, exp: "Standard declaration pattern." },
+    { cat: "FORTRAN", q: "What are 'constants' in FORTRAN?", options: ["Variables whose values can be changed.", "Fixed values that the program cannot alter during its execution.", "Keywords that define program structure.", "Operators used for calculations."], correct: 1, exp: "Immutable values." },
+    { cat: "FORTRAN", q: "What are the two types of constants in FORTRAN?", options: ["Integer and Real", "Literal and Named", "Positive and Negative", "Small and Large"], correct: 1, exp: "Hardcoded values vs PARAMETERS." },
+    { cat: "FORTRAN", q: "How are 'named constants' declared in FORTRAN?", options: ["Using the constant attribute.", "Using the parameter attribute.", "Using the final attribute.", "By assigning a value directly without a declaration."], correct: 1, exp: "PARAMETER attribute marks it constant." },
+    { cat: "FORTRAN", q: "What is the gravitational acceleration constant (g) in the gravitationalDisp program example?", options: ["9.8", "9.81", "10.0", "3.1415927"], correct: 1, exp: "Standard physics constant used in code." },
+    { cat: "FORTRAN", q: "What is an 'operator' in FORTRAN?", options: ["A symbol that tells the compiler to perform specific mathematical or logical manipulations.", "A reserved keyword.", "A name given to a storage area.", "A comment indicator."], correct: 0, exp: "Symbols like +, -, *." },
+    { cat: "FORTRAN", q: "Which of the following is an arithmetic operator in FORTRAN?", options: [".eq.", "==", "**", ".and."], correct: 2, exp: "Double star is exponentiation." },
+    { cat: "FORTRAN", q: "What does the / operator do in FORTRAN arithmetic?", options: ["Addition", "Subtraction", "Multiplication", "Division"], correct: 3, exp: "Forward slash is division." },
+    { cat: "FORTRAN", q: "Which operator is used for exponentiation in FORTRAN?", options: ["^", "**", "exp", "pow"], correct: 1, exp: "Standard syntax: a**b." },
+    { cat: "FORTRAN", q: "In the context of relational operators, what does > check?", options: ["If the left operand is less than the right operand.", "If the left operand is greater than the right operand.", "If the two operands are equal.", "If the two operands are not equal."], correct: 1, exp: "Standard 'Greater Than'." },
+    { cat: "FORTRAN", q: "Which relational operator is equivalent to .lt.?", options: [">", ">=", "<", "!="], correct: 2, exp: ".lt. = Less Than." },
+    { cat: "FORTRAN", q: "What is the equivalent of the != relational operator in FORTRAN?", options: [".eq.", ".ne.", ".gt.", ".le."], correct: 1, exp: ".ne. = Not Equal." },
+    { cat: "FORTRAN", q: "Which of the following is a logical operator in FORTRAN?", options: ["+", ">", ".or.", "="], correct: 2, exp: "Logical OR check." },
+    { cat: "FORTRAN", q: "What does the .and. logical operator evaluate to?", options: ["True if at least one operand is true.", "True if both operands are true.", "True if both operands are false.", "True if one operand is true and the other is false."], correct: 1, exp: "Both must be true." },
+    { cat: "FORTRAN", q: "What is the effect of the .not. logical operator?", options: ["It returns true if both operands are true.", "It reverses the logical state of its operand.", "It returns true if either operand is true.", "It checks for equivalence between operands."], correct: 1, exp: "Inverts True to False." },
+    { cat: "FORTRAN", q: "What does the .eqv. logical operator check?", options: ["Non-equivalence of two logical values.", "Equivalence of two logical values.", "The AND condition of two logical values.", "The OR condition of two logical values."], correct: 1, exp: "Logical Equality." },
+    { cat: "FORTRAN", q: "What does operator precedence determine in FORTRAN?", options: ["The order of variable declaration.", "The grouping of terms in an expression and how it is evaluated.", "The type of loop to be used.", "The structure of conditional statements."], correct: 1, exp: "BODMAS/PEMDAS for code." },
+    { cat: "FORTRAN", q: "In FORTRAN operator precedence, which category has higher precedence: Multiplicative operators (*, /) or Additive operators (+, -)?", options: ["Additive operators", "Multiplicative operators", "They have the same precedence.", "Precedence depends on the operands."], correct: 1, exp: "Multiplication/Division happen first." },
+    { cat: "FORTRAN", q: "What are 'control structures' used for in programming?", options: ["To declare variables.", "To define data types.", "To direct the flow of program execution.", "To perform arithmetic calculations."], correct: 2, exp: "Loops and If-statements." },
+    { cat: "FORTRAN", q: "Which type of FORTRAN control construct is used for 'single selection'?", options: ["If...then...else", "Do loop", "If...then", "Select Case"], correct: 2, exp: "If-Then handles a single branch." },
+    { cat: "FORTRAN", q: "In an if (logical expression) then construct, when is the block of code inside executed?", options: ["When the logical expression evaluates to false.", "When the logical expression evaluates to true.", "Always, regardless of the logical expression.", "Only if there is an else statement."], correct: 1, exp: "Condition must be true to enter block." },
+    { cat: "FORTRAN", q: "What is the purpose of the else statement in an if...then...else construct?", options: ["To execute code when the if condition is true.", "To execute code when the if condition is false.", "To provide an alternative condition to check.", "To terminate the program."], correct: 1, exp: "Default path when 'if' fails." },
+    { cat: "FORTRAN", q: "In an if...else if...else statement, when is the else block executed?", options: ["When the first if condition is true.", "When any else if condition is true.", "When none of the preceding if or else if conditions are true.", "When the program starts."], correct: 2, exp: "Final fallback." },
+    { cat: "FORTRAN", q: "What is a characteristic of else if statements in a FORTRAN if construct?", options: ["They must be placed at the end.", "They can be used one or more times.", "They can only be used if there is no else statement.", "They are mandatory."], correct: 1, exp: "Used for multiple mutually exclusive checks." },
+    { cat: "FORTRAN", q: "What does the select case construct in FORTRAN allow?", options: ["A variable to be tested for equality against a list of values.", "A loop to repeat a set of statements.", "A program to branch to a specific line number.", "A condition to be checked for true or false only."], correct: 0, exp: "Cleaner alternative to many else-ifs." },
+    { cat: "FORTRAN", q: "In a select case construct, what is each value being checked against called?", options: ["A condition", "A case", "Selector", "A variable"], correct: 1, exp: "Individual options are 'cases'." },
+    { cat: "FORTRAN", q: "What is the purpose of the case default in a select case construct?", options: ["To specify the first case to be checked.", "To handle situations where the expression does not match any of the defined cases.", "To end the select case block.", "To define the variable being selected on."], correct: 1, exp: "Captures everything else." },
+    { cat: "FORTRAN", q: "What is a 'loop statement' used for in programming?", options: ["To execute a statement or group of statements multiple times.", "To declare variables.", "To define functions.", "To handle errors."], correct: 0, exp: "Repetition." },
+    { cat: "FORTRAN", q: "Which of the following is a type of FORTRAN repetition statement (loop)?", options: ["If...then", "Do loop", "Select Case", "Print"], correct: 1, exp: "Fortran uses 'DO' for loops." },
+    { cat: "FORTRAN", q: "What is a key characteristic of a do while loop?", options: ["It executes a fixed number of times.", "It tests the condition before executing the loop body.", "It always executes at least once.", "It requires an explicit counter variable."], correct: 1, exp: "Pre-test loop." },
+    { cat: "FORTRAN", q: "What does the do n = 1, 10 loop in the factorial example do?", options: ["It repeats indefinitely.", "It iterates with the variable n taking values from 1 to 10.", "It repeats as long as n is less than or equal to 10.", "It executes 10 times without a counter."], correct: 1, exp: "Counter-controlled loop." },
+    { cat: "FORTRAN", q: "In the do while loop example for factorial, what happens if the condition (n <= 10) is initially false?", options: ["The loop body will execute once.", "The loop body will not execute at all.", "The loop will continue until n becomes 10.", "An error will occur."], correct: 1, exp: "Condition is checked before first run." }
 ];
 
-function init() {
-    const container = document.getElementById('quiz-form');
+let userAnswers = {};
+let startTime;
+let timerInterval;
+
+function startQuiz() {
+    document.getElementById('start-screen').classList.remove('active');
+    document.getElementById('quiz-screen').classList.add('active');
+    document.getElementById('exam-header').style.display = 'block';
+    
+    startTime = Date.now();
+    timerInterval = setInterval(updateTimer, 1000);
+    renderQuestions();
+}
+
+function renderQuestions() {
+    const container = document.getElementById('questions-container');
     quizData.forEach((q, i) => {
         const div = document.createElement('div');
         div.className = 'quiz-card';
@@ -263,38 +294,78 @@ function init() {
             <span class="cat-tag">${q.cat}</span>
             <div class="question">${i+1}. ${q.q}</div>
             <div class="options">
-                ${q.options.map((opt, oi) => `<label onclick="update()"><input type="radio" name="q${i}" value="${oi}"><div class="option-label">${opt}</div></label>`).join('')}
-            </div>`;
+                ${q.options.map((opt, oi) => `
+                    <label>
+                        <input type="radio" name="q${i}" value="${oi}" onchange="trackProgress(${i}, ${oi})">
+                        <div class="option-label">${opt}</div>
+                    </label>
+                `).join('')}
+            </div>
+        `;
         container.appendChild(div);
     });
 }
-function update() {
-    const ans = document.querySelectorAll('input[type="radio"]:checked').length;
-    document.getElementById('progress-bar').style.width = (ans/quizData.length)*100 + '%';
-    document.getElementById('counter').innerText = ans + '/' + quizData.length;
+
+function trackProgress(qIndex, val) {
+    userAnswers[qIndex] = parseInt(val);
+    const answeredCount = Object.keys(userAnswers).length;
+    const pct = (answeredCount / quizData.length) * 100;
+    document.getElementById('progress-bar').style.width = pct + '%';
+    document.getElementById('counter').innerText = `${answeredCount}/${quizData.length}`;
 }
-let secCounter = 0; setInterval(() => { secCounter++; let m=Math.floor(secCounter/60).toString().padStart(2,'0'), sec=(secCounter%60).toString().padStart(2,'0'); document.getElementById('timer').innerText = m+':'+sec; }, 1000);
-function grade() {
+
+function updateTimer() {
+    const diff = Math.floor((Date.now() - startTime) / 1000);
+    const m = Math.floor(diff / 60).toString().padStart(2, '0');
+    const s = (diff % 60).toString().padStart(2, '0');
+    document.getElementById('timer').innerText = `${m}:${s}`;
+}
+
+function showResults() {
+    clearInterval(timerInterval);
+    document.getElementById('quiz-screen').classList.remove('active');
+    document.getElementById('exam-header').style.display = 'none';
+    document.getElementById('result-screen').classList.add('active');
+
     let score = 0;
-    const r = document.getElementById('review-list');
-    r.innerHTML = '<h2>Exam Review</h2>';
     quizData.forEach((q, i) => {
-        const sel = document.querySelector(`input[name="q${i}"]:checked`);
-        const ok = sel && parseInt(sel.value) === q.correct;
-        if(ok) score++;
-        const d = document.createElement('div');
-        d.className = 'review-card ' + (ok ? 'correct' : 'wrong');
-        d.innerHTML = `<strong>Q${i+1}: ${q.q}</strong><p>${ok?'✓':'✗'} Your Answer: ${sel?q.options[sel.value]:'None'}</p>${ok?'':`<p>✓ Correct: ${q.options[q.correct]}</p>`}`;
-        r.appendChild(d);
+        if(userAnswers[i] === q.correct) score++;
     });
-    document.getElementById('quiz-form').style.display='none';
-    document.getElementById('submit-btn').style.display='none';
-    document.getElementById('result-area').style.display='block';
-    document.getElementById('final-score').innerText = score + '/' + quizData.length;
+
+    const pct = Math.round((score / quizData.length) * 100);
+    document.getElementById('res-score').innerText = `${score}/${quizData.length}`;
+    document.getElementById('res-pct').innerText = `${pct}%`;
+    
+    let feedback = pct >= 70 ? "Mastery achieved!" : pct >= 40 ? "Good job, but keep reviewing." : "Keep studying and try again!";
+    document.getElementById('res-feedback').innerText = feedback;
     window.scrollTo(0,0);
 }
-init();
+
+function showReview() {
+    document.getElementById('result-screen').classList.remove('active');
+    document.getElementById('review-screen').classList.add('active');
+    const list = document.getElementById('review-list');
+    list.innerHTML = '';
+
+    quizData.forEach((q, i) => {
+        const isCorrect = userAnswers[i] === q.correct;
+        const item = document.createElement('div');
+        item.className = `review-item ${isCorrect ? 'correct' : 'wrong'}`;
+        item.innerHTML = `
+            <strong>Q${i+1}: ${q.q}</strong>
+            <p style="margin: 10px 0 5px;">Your Answer: <span style="color:${isCorrect ? '#22c55e' : '#ef4444'}">${userAnswers[i] !== undefined ? q.options[userAnswers[i]] : 'None'}</span></p>
+            ${!isCorrect ? `<p>Correct: <span style="color:#22c55e">${q.options[q.correct]}</span></p>` : ''}
+            <div class="explanation"><strong>Explanation:</strong> ${q.exp}</div>
+        `;
+        list.appendChild(item);
+    });
+    window.scrollTo(0,0);
+}
+
+function backToScore() {
+    document.getElementById('review-screen').classList.remove('active');
+    document.getElementById('result-screen').classList.add('active');
+}
 </script>
 </body>
 </html>
-
